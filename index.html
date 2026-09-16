@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore triaxial strain-rate tests on kaolin, bentonite and Speswhite mixtures. Compare stress paths and download research data.">
+  <title>Triaxial rate tests · Data explorer</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+<header><a class="brand" href="./"><span class="brand-icon">↗</span> TRIAXIAL <span> / DATA EXPLORER</span></a><a href="https://github.com/kks-AU/triaxial-rate-test-data" target="_blank" rel="noopener">View repository ↗</a></header>
+<main>
+  <section class="intro"><p class="eyebrow">EXPERIMENTAL SOIL MECHANICS</p><h1>A closer look at rate effects.</h1><p>Compare triaxial tests on kaolin, bentonite and Speswhite mixtures.<br>Select specimens, explore their response, and take the data with you.</p><div class="stats" id="stats">Loading test catalogue…</div></section>
+  <div class="workspace">
+    <aside aria-label="Test selection"><div class="sidebar-title"><h2>Specimens</h2><span id="selected-count">0 selected</span></div>
+      <label for="search">Find a test</label><input id="search" type="search" placeholder="Test ID or laboratory ID">
+      <label for="material">Material</label><select id="material"><option value="">All materials</option></select>
+      <div class="selection-actions"><button id="select-visible">Select visible</button><button id="clear">Clear all</button></div>
+      <div id="tests"></div>
+      <p class="aside-note">Colours stay consistent across all four plots. Select several specimens to compare them.</p>
+    </aside>
+    <section class="results" aria-label="Results">
+      <div class="toolbar"><div><h2>Test response</h2><p id="status" role="status" aria-live="polite">Preparing plots…</p></div><button id="reset" class="secondary">Reset zoom</button></div>
+      <div class="controls"><label>Pore pressure<select id="pore"><option value="excess">Excess, Δu</option><option value="absolute">Absolute, u</option></select></label><label>Compression pressure axis<select id="scale"><option value="log">Logarithmic</option><option value="linear">Linear</option></select></label><label class="check"><input type="checkbox" id="stages"> Mark rate-stage starts</label></div>
+      <div id="error" role="alert" hidden></div>
+      <div class="plots">
+        <article class="plot-card"><div class="plot-heading"><span>01</span><h3>Stress–strain response</h3><button data-export="stress" aria-label="Download stress–strain plot as SVG">↓ SVG</button></div><div id="stress" class="plot"></div></article>
+        <article class="plot-card"><div class="plot-heading"><span>02</span><h3>Effective stress path</h3><button data-export="path" aria-label="Download effective stress path as SVG">↓ SVG</button></div><div id="path" class="plot"></div></article>
+        <article class="plot-card"><div class="plot-heading"><span>03</span><h3>Pore-water pressure</h3><button data-export="water" aria-label="Download pore-water pressure plot as SVG">↓ SVG</button></div><div id="water" class="plot"></div></article>
+        <article class="plot-card"><div class="plot-heading"><span>04</span><h3>Compression path</h3><button data-export="compression" aria-label="Download compression plot as SVG">↓ SVG</button></div><div id="compression" class="plot"></div></article>
+      </div>
+      <p class="plot-note">Plots use reduced data preserving stage boundaries and local extrema; downloads retain every measurement. Compression curves connect the initial and saved consolidation-stage points.</p>
+      <section class="download-section"><div class="section-heading"><div><p class="eyebrow">REUSE THE RESULTS</p><h2>Properties & downloads</h2></div><button id="download-parameters" class="primary">Selected parameters ↓</button></div>
+        <div class="table-wrap"><table><caption>Selected specimens — pressures in kPa; void ratio dimensionless</caption><thead><tr><th>Test / lab ID</th><th>Material</th><th>p′<sub>c</sub></th><th>OCR</th><th>Initial e*</th><th>Data</th></tr></thead><tbody id="test-table"></tbody></table></div>
+        <div class="section-heading compact"><h3>Material properties</h3><button id="download-materials" class="secondary">Selected materials ↓</button></div>
+        <div class="table-wrap"><table><caption>Composition and index properties from the saved material table</caption><thead><tr><th>Material</th><th>Kaolin %</th><th>Bentonite %</th><th>Speswhite %</th><th>w<sub>L</sub> %</th><th>G<sub>s</sub></th><th>Clay fraction %</th></tr></thead><tbody id="material-table"></tbody></table></div>
+        <p class="plot-note">* Corrected void ratio at the start of consolidation. p′<sub>c</sub> is the measured end-consolidation pressure. A dash indicates unavailable metadata.</p>
+        <details><summary>Interpreted parameters for selected specimens</summary><p>Saved paper parameters, including model choices and fit diagnostics. Download the table for all fields. Values are dimensionless unless the column name states a unit.</p><div id="parameter-table" class="table-wrap"></div></details>
+        <nav class="all-downloads" aria-label="Full dataset downloads"><a href="data/tests.csv" download>All test metadata ↓</a><a href="data/materials.csv" download>All material properties ↓</a><a href="data/parameters/master_rate_effects_table.csv" download>All rate-effect fits ↓</a><a href="data/parameters/Paper_gamma_excluded_stages.csv" download>Stage exclusions ↓</a><a href="https://github.com/kks-AU/triaxial-rate-test-data/archive/refs/heads/main.zip">Repository ZIP ↗</a></nav>
+      </section>
+    </section>
+  </div>
+  <footer><p>Processed experimental data · <a href="LICENSE-DATA">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></p><p><a href="https://github.com/kks-AU/triaxial-rate-test-data#readme">Methods, definitions & provenance ↗</a></p></footer>
+</main>
+</body></html>

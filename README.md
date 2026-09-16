@@ -1,7 +1,6 @@
 # Triaxial rate-test data for GitHub
 
-This folder contains processed, full-resolution data for a future interactive
-test viewer. No website or hosting configuration is included yet.
+This repository contains processed, full-resolution data and an interactive test viewer.
 
 ## Files
 
@@ -133,3 +132,9 @@ The exporter reads only the canonical `Processed data and results` folder,
 overwrites the generated files in `github/data`, and verifies the exported
 shear row counts and core plot values against the loaded source tables.
 It does not modify the input results, commit, push or publish the files.
+
+## Interactive viewer
+
+See [VIEWER.md](VIEWER.md) for features, local preview, data refresh and GitHub Pages deployment instructions.
+
+The viewer provides four interactive plots, multiple-test comparisons, material properties, parameter tables, full-resolution CSV downloads and SVG figure export.
