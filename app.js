@@ -21,16 +21,11 @@ function renderChoices() {
   $('selected-count').textContent=`${selected.size} selected`;
 }
 const materials = () => catalogue.materials.filter(m=>chosen().some(t=>t.MaterialID===m.SoilComposition));
-const parameters = () => catalogue.parameters.filter(p=>selected.has(p.LabID));
 function tableRows(rows, fields) { return rows.map(r=>`<tr>${fields.map(f=>`<td>${esc(r[f] === '' || r[f] === 'NaN' ? '—' : r[f])}</td>`).join('')}</tr>`).join(''); }
 function renderTables() {
   $('test-table').innerHTML=chosen().map(t=>`<tr><td><strong style="color:${colour(t)}">${esc(t.TestID)}</strong><small>${esc(t.LabID)}</small></td><td>${esc(t.MaterialID || '—')}</td><td>${fmt(t.EndConsolidationPressure_kPa,1)}</td><td>${fmt(t.OCR)}</td><td>${fmt(t.InitialVoidRatioCorrected,3)}</td><td><a href="data/${encodeURI(t.ShearFile)}" download>Shear CSV ↓</a><a href="data/${encodeURI(t.CompressionFile)}" download>Compression CSV ↓</a></td></tr>`).join('') || '<tr><td colspan="6">Select a specimen to explore and download its data.</td></tr>';
   $('material-table').innerHTML=tableRows(materials(),['SoilComposition','K_pct','B_pct','SW_pct','wL_pct','Gs','CF_pct']) || '<tr><td colspan="7">No material metadata for the current selection.</td></tr>';
-  const pp=parameters(), fields=pp.length?Object.keys(pp[0]):[];
-  $('parameter-table').innerHTML=pp.length?`<table><thead><tr>${fields.map(f=>`<th>${esc(f)}</th>`).join('')}</tr></thead><tbody>${tableRows(pp,fields)}</tbody></table>`:'<p>No saved paper parameters for the current selection.</p>';
-  const missing=chosen().filter(t=>!pp.some(p=>p.LabID===t.LabID));
-  if(missing.length) $('parameter-table').insertAdjacentHTML('beforeend',`<p>Parameters unavailable: ${missing.map(t=>esc(t.LabID)).join(', ')}.</p>`);
-  $('download-materials').disabled=!materials().length; $('download-parameters').disabled=!pp.length;
+  $('download-materials').disabled=!materials().length;
 }
 function downloadCSV(rows, filename) {
   if(!rows.length)return;
@@ -95,7 +90,6 @@ async function init() {
   for(const id of ['pore','scale','stages'])$(id).onchange=update;
   $('reset').onclick=()=>{for(const id of ['stress','path','water','compression'])Plotly.relayout(id,{'xaxis.autorange':true,'yaxis.autorange':true});};
   $('download-materials').onclick=()=>downloadCSV(materials(),'selected-material-properties.csv');
-  $('download-parameters').onclick=()=>downloadCSV(parameters(),'selected-test-parameters.csv');
   document.querySelectorAll('[data-export]').forEach(button=>button.onclick=()=>Plotly.downloadImage(button.dataset.export,{format:'svg',filename:`triaxial-${button.dataset.export}`,width:1000,height:700}));
   await update();
 }

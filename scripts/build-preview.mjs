@@ -21,7 +21,7 @@ export function parseCSV(text) {
 }
 const read = async file => parseCSV(await fs.readFile(path.join(source, 'data', file), 'utf8'));
 const manifest = JSON.parse(await fs.readFile(path.join(source, 'data/manifest.json'), 'utf8'));
-const fields = ['ShearStrain_pct','q_kPa','p_eff_kPa','PorePressure_kPa','ExcessPorePressure_kPa','VoidRatioCorrected','StageNumber','AxialStrainRate_pct_min','SourceRow'];
+const fields = ['ShearStrain_pct','q_kPa','p_eff_kPa','PorePressure_kPa','ExcessPorePressure_kPa','VoidRatioFinalWaterContentShifted','StageNumber','AxialStrainRate_pct_min','SourceRow'];
 const number = value => value !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
 for (const test of manifest.tests) {
   const rows = await read(test.ShearFile);
@@ -54,11 +54,11 @@ for (const test of manifest.tests) {
     if (sampled.length) sampled.push(null);
     for (const i of [...indices].sort((a,b) => a-b)) sampled.push(fields.map(f => number(seg[i][f])));
   }
-  const compression = (await read(test.CompressionFile)).map(r => ({ p: number(r.p_eff_kPa), e: number(r.VoidRatioCorrected), stage: number(r.StageNumber), type: r.PointType }));
+  const compression = (await read(test.CompressionFile)).map(r => ({ p: number(r.p_eff_kPa), e: number(r.VoidRatioFinalWaterContentShifted), stage: number(r.StageNumber), type: r.PointType }));
   if (compression.length !== test.CompressionPoints) throw Error(`Compression count mismatch: ${test.LabID}`);
   const data = { fields, sourceRows: rows.length, displayedRows: sampled.filter(Boolean).length, stages: [...stageInfo.values()], shear: sampled, compression };
   await fs.writeFile(path.join(output, `${test.LabID}.json`), JSON.stringify(data));
   console.log(`${test.LabID}: ${rows.length} → ${data.displayedRows} plotting points`);
 }
-const catalogue = { ...manifest, materials: await read('materials.csv'), parameters: await read('parameters/Paper_specimen_rate_effect_parameters.csv') };
+const catalogue = { ...manifest, materials: await read('materials.csv') };
 await fs.writeFile(path.join(output, 'catalogue.json'), JSON.stringify(catalogue));

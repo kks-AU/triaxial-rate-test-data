@@ -38,7 +38,7 @@ not work because browsers restrict fetching local data files.
 ## Plot data and scientific meaning
 
 `data/preview/catalogue.json` combines the test catalogue, material properties
-and saved paper parameters. Each `<LabID>.json` contains a reduced shear series
+and void-ratio definitions. Each `<LabID>.json` contains a reduced shear series
 and every exported compression point. Browser selection loads these files on
 demand and caches them for the current page session. Full-resolution downloads
 link directly to the original CSV files; the viewer does not rewrite them.
@@ -49,12 +49,10 @@ q, p', absolute and excess pore pressure, and corrected void ratio. Points stay
 in source order and no new experimental values are interpolated. Null rows
 separate segments so the charts do not connect across invalid intervals.
 Hover labels include the source CSV row, stage and measured axial strain rate.
-This reduction is for visual exploration, not for parameter fitting.
+This reduction is for visual exploration, not for numerical fitting.
 
 Compression lines connect the initial state and valid saved consolidation-stage
-points, not a continuous time series. Material metadata and parameters missing
-from the source remain unavailable; this applies to A9. Parameter downloads
-retain the saved fit diagnostics and model/basis fields.
+points, not a continuous time series. Missing material metadata remains unavailable, including for A9. No fitted rate-effect parameters are distributed. See data/README.md for the two void-ratio bases.
 
 ## External assets and licences
 

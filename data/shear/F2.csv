@@ -1,4 +1,4 @@
-SourceRow,StageNumber,TimeSinceStartOfTest_s,TimeSinceStartOfStage_s,ShearStrain_pct,q_kPa,p_eff_kPa,PorePressure_kPa,ExcessPorePressure_kPa,VoidRatioUnshifted,VoidRatioCorrected,AxialStrainRate_pct_min,ShearStrainBeforeCompliance_pct,qBeforeCompliance_kPa,pEffBeforeCompliance_kPa,PlotValid
+SourceRow,StageNumber,TimeSinceStartOfTest_s,TimeSinceStartOfStage_s,ShearStrain_pct,q_kPa,p_eff_kPa,PorePressure_kPa,ExcessPorePressure_kPa,VoidRatioInitialWaterContent,VoidRatioFinalWaterContentShifted,AxialStrainRate_pct_min,ShearStrainBeforeCompliance_pct,qBeforeCompliance_kPa,pEffBeforeCompliance_kPa,PlotValid
 1,10,340258,0,0,2.84895478769454,620.249651595898,480.7,0,0.938240188503332,0.962240188503332,0.0520039787800224,0,2.84895478769454,620.249651595898,1
 2,10,340259,1,0,2.84895478769454,620.349651595898,480.6,-0.0999999999999659,0.938240188503332,0.962240188503332,0.0510039022664138,0,2.84895478769454,620.349651595898,1
 3,10,340260,2,0,3.30406304681492,620.201354348938,480.9,0.199999999999989,0.938240188503332,0.962240188503332,0.051586178283628,0,3.30406304681492,620.201354348938,1

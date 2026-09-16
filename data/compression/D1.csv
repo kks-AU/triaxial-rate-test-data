@@ -1,4 +1,4 @@
-StageNumber,ILStageNumber,PointType,p_eff_kPa,VoidRatioUnshifted,VoidRatioCorrected
+StageNumber,ILStageNumber,PointType,p_eff_kPa,VoidRatioInitialWaterContent,VoidRatioFinalWaterContentShifted
 6,0,initial,20.1285323921953,1.34,1.348
 6,1,t100,48.2040399603626,1.29607418853732,1.30407418853732
 7,2,t100,92.8849113163608,1.24054751888684,1.24854751888684
