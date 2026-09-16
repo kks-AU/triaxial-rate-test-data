@@ -1,0 +1,9 @@
+SoilComposition,Family,K_pct,B_pct,SW_pct,wL_pct,Gs,CF_pct
+K100,K1,100,0,0,47,2.68,35
+K50SW50,K1+Speswhite,50,0,50,57,NaN,57.25
+K75SW25,K1+Speswhite,75,0,25,52,NaN,46.125
+K80B20,K1+Bentonite,80,20,0,107,NaN,44.8
+K90B10,K1+Bentonite,90,10,0,84,NaN,39.9
+K90SW10,K1+Speswhite,90,0,10,49,NaN,39.45
+K95B5,K1+Bentonite,95,5,0,65,NaN,37.45
+SW100,Speswhite,0,0,100,67,2.6,79.5

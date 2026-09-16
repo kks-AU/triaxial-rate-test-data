@@ -1,0 +1,19 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# MATLAB temporary files
+*.asv
+*.autosave
+slprj/
+codegen/
+
+# Editor and temporary files
+.vscode/
+.idea/
+*.tmp
+~$*
+
+# Web development dependencies
+node_modules/
