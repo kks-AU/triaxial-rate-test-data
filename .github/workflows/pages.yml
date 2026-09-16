@@ -28,6 +28,7 @@ jobs:
           mkdir _site
           cp index.html app.js styles.css LICENSE-CODE LICENSE-DATA _site/
           cp -r data _site/data
+          cp -r assets _site/assets
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

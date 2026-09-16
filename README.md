@@ -138,3 +138,10 @@ It does not modify the input results, commit, push or publish the files.
 See [VIEWER.md](VIEWER.md) for features, local preview, data refresh and GitHub Pages deployment instructions.
 
 The viewer provides four interactive plots, multiple-test comparisons, material properties, parameter tables, full-resolution CSV downloads and SVG figure export.
+
+### University logo
+
+The Aarhus University department logo in `assets/au-logo.png` was supplied as
+`alt-logo-t-1a171b-en.pdf`. It is reproduced as supplied, with surrounding blank
+space removed for display. The university logo is excluded from this repository's
+MIT and CC BY 4.0 licences; rights remain with its respective owner.
