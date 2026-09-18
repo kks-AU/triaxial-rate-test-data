@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "tests": [
+    {
+      "LabID": "A7",
+      "totalRows": 38,
+      "plasticRows": 19
+    },
+    {
+      "LabID": "A8",
+      "totalRows": 38,
+      "plasticRows": 19
+    },
+    {
+      "LabID": "A9",
+      "totalRows": 0,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "D1",
+      "totalRows": 124,
+      "plasticRows": 61
+    },
+    {
+      "LabID": "D3",
+      "totalRows": 40,
+      "plasticRows": 19
+    },
+    {
+      "LabID": "E1",
+      "totalRows": 40,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "E3",
+      "totalRows": 40,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "F2",
+      "totalRows": 40,
+      "plasticRows": 19
+    },
+    {
+      "LabID": "G1",
+      "totalRows": 40,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "G2",
+      "totalRows": 38,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "G3",
+      "totalRows": 40,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "E4",
+      "totalRows": 30,
+      "plasticRows": 0
+    },
+    {
+      "LabID": "G4",
+      "totalRows": 40,
+      "plasticRows": 0
+    }
+  ],
+  "sources": [
+    {
+      "file": "K1_plastic_strain_R_step_data.csv",
+      "sha256": "e3edf103a94ab9a4b6da25ba814c7a4ffd702666011746e5fb4ecba88dd9560e"
+    },
+    {
+      "file": "K1_plastic_strain_initial_stiffness.csv",
+      "sha256": "8adfb32b3348887f3991383d8958a6311ac54f8e1fa3ea818bf514e0ea0c6c1d"
+    },
+    {
+      "file": "K1_plastic_strain_R_curves.csv",
+      "sha256": "eb24b333f489c468661a746c22b81b823ac13761b4f0468550c61c6c5e1857f3"
+    },
+    {
+      "file": "A7_auto_reference_rate_results.csv",
+      "sha256": "eebe616fec2654333914a99bd183f79fbbd7edc885f83cc09fc0b263345d658e"
+    },
+    {
+      "file": "A8_auto_reference_rate_results.csv",
+      "sha256": "9239f12e8f45b69b25a0a996308454f7ae26d3cb1c8c988fb67893e652ff8738"
+    },
+    {
+      "file": "D1_auto_reference_rate_results.csv",
+      "sha256": "0913a7e904485a05f8cdd6ec3b84ea2c7f9cc853aec00f7a6c8c32a7448d52f6"
+    },
+    {
+      "file": "D3_auto_reference_rate_results.csv",
+      "sha256": "0c7c90b47277d089f4f90b1ebeae02b0f797757225bec0d14b77a709cb36ebed"
+    },
+    {
+      "file": "E1_auto_reference_rate_results.csv",
+      "sha256": "47506329c0413c059840e25ad61a575b874c086b20bf86542fe52f9793c59f04"
+    },
+    {
+      "file": "E3_auto_reference_rate_results.csv",
+      "sha256": "cfde4493e99789cd7cbcbedaa8d22bb05cdc46fbd962e6125dec8102233cfb33"
+    },
+    {
+      "file": "F2_auto_reference_rate_results.csv",
+      "sha256": "8a8315c719c8352796a656be8fe4361bfff2b2af0388660383ecb9c1e0689b6a"
+    },
+    {
+      "file": "G1_auto_reference_rate_results.csv",
+      "sha256": "61ccf03ee6083bc9dba89a52544acd8d9b2341439dc2903e44343bde8f45927d"
+    },
+    {
+      "file": "G2_auto_reference_rate_results.csv",
+      "sha256": "2377983908eb045afcebcbf03c871e1e825ba62ca5b5e3d0ff656fd9815c66dc"
+    },
+    {
+      "file": "G3_auto_reference_rate_results.csv",
+      "sha256": "e0876d71c8e416fbf4464f726516700c449420946824b0ef9050fb68860b88ce"
+    },
+    {
+      "file": "E4_auto_reference_rate_results.csv",
+      "sha256": "c0d9242abbd970097c0ac2d8d7749a5346e0400386e520314067b8d6c90d2a25"
+    },
+    {
+      "file": "G4_auto_reference_rate_results.csv",
+      "sha256": "3b9b3dc2af641984433c538e849d82b8c93b27b25b8bfaacf584c39c3bf41948"
+    }
+  ]
+}

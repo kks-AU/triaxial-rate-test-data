@@ -52,7 +52,7 @@ Hover labels include the source CSV row, stage and measured axial strain rate.
 This reduction is for visual exploration, not for numerical fitting.
 
 Compression lines connect the initial state and valid saved consolidation-stage
-points, not a continuous time series. Missing material metadata remains unavailable, including for A9. No fitted rate-effect parameters are distributed. See data/README.md for the two void-ratio bases.
+points, not a continuous time series. Missing material metadata remains unavailable, including for A9. Saved rate-analysis summaries and fitted parameters are available on `rate-analysis.html`. See data/README.md for the two void-ratio bases.
 
 ## External assets and licences
 
@@ -61,3 +61,30 @@ Manrope load from Google Fonts, with system-font fallbacks. An internet
 connection is required for Plotly; a visible error is shown if it cannot load.
 The application's code is MIT licensed; the research data and documentation
 are CC BY 4.0, as described in the main README.
+
+## Rate-analysis page
+
+`rate-analysis.html` provides all 13 requested rate plots, specimen/material
+selection, pre-/post-peak filtering, SVG figure export, and CSV downloads of
+coefficients and plotted stage values. Test selections carry between pages and
+are saved in the URL. A9 has no saved rate-reference analysis. The existing K1
+plastic analysis is available for A7, A8, F2, D1 and D3; it retains a total-strain
+reference and provides estimated plastic strain as an additional coordinate.
+
+Refresh its analysis summaries from the separate MATLAB project:
+
+```sh
+python3 scripts/export-rate-data.py /path/to/RateEffects
+npm test
+```
+
+The exporter reads original saved analysis CSVs, not the reduced shear preview.
+`data/rate/manifest.json` records the source filenames and SHA-256 hashes. The
+rate JSON files are committed inputs to GitHub Pages; the workflow does not
+need the private/local MATLAB analysis checkout. `npm run build` still refreshes
+only the original shear/compression preview.
+
+Fit equations and normalization are documented in the page and
+[data/rate/README.md](data/rate/README.md). The companion MATLAB function
+`Plot_rate_analysis.m` in the RateEffects project offers matching `Tests`,
+`Plots`, `Branch`, `ShowFits`, `Export`, `Formats` and `OutputDir` options.

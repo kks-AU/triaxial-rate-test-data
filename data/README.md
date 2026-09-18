@@ -1,7 +1,8 @@
 # Data files and void-ratio definitions
 
 The scientific data distributed here are `materials.csv`, `shear/<LabID>.csv`
-and `compression/<LabID>.csv`. Fitted rate-effect parameters are not included.
+and `compression/<LabID>.csv`. `rate/` adds saved rate-analysis summaries;
+the viewer fits and exports beta/gamma coefficients from those summaries.
 `manifest.json` stores specimen metadata, source provenance, units/bases and
 file paths for the viewer. `preview/` contains reduced plotting copies.
 

@@ -8,3 +8,6 @@ header{height:auto;min-height:96px;flex-wrap:wrap;padding-top:18px;padding-botto
 header .brand{margin-left:auto}
 @media(max-width:1050px){header .brand span:not(.brand-icon){display:none}.au-brand{flex-basis:360px}header{column-gap:20px}}
 @media(max-width:650px){header{padding:18px;gap:18px}.au-brand{flex:0 0 100%;max-width:420px}header .brand{margin-left:0}header>a:last-child{margin-left:auto}}
+
+.page-nav{display:flex;gap:8px;flex-wrap:wrap}.page-nav a{padding:9px 12px;border-radius:6px;color:var(--muted);font-weight:600;font-size:12px}.page-nav a[aria-current=page]{background:#e8f4f4;color:var(--accent)}.plot-section-heading{margin:25px 0 16px}.method-note{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin:18px 0}.rate-download{margin-top:25px}.fit-labels{font-size:11px;line-height:1.7;margin:0;padding:0 18px 14px;color:var(--muted)}.rate-plot{height:370px}#fit-table td{padding:10px 11px}.fit-low{color:#a65321} .test-option:has(input:disabled){opacity:.55}.plot-card[hidden],.plots[hidden]{display:none}
+@media(max-width:650px){.page-nav{order:3;width:100%}.rate-plot{height:340px}.rate-download .section-heading{flex-direction:column}}

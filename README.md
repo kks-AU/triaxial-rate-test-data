@@ -15,10 +15,12 @@ mixtures, with material properties and an interactive viewer.
 | `data/README.md` | Column definitions, equations, assumptions and units. |
 | `data/manifest.json` | Specimen metadata, file paths and source provenance. |
 | `data/preview/` | Reduced plotting copies generated for the viewer. |
+| `data/rate/` | Saved rate-analysis summaries, K1 plastic coordinates and source provenance. |
 
 There are 13 tests, 984,500 shear measurement rows and 74 compression points.
-No fitted rate-effect parameters are included. Measured strain rate remains
-part of the shear measurements. A9's missing material metadata is left missing.
+The rate-analysis page includes fitted beta and gamma coefficients with R²
+for 12 tests; A9 has no saved rate-reference analysis. Measured strain rate
+remains part of the shear measurements. A9's missing material metadata is left missing.
 
 ## Void ratio
 
@@ -41,7 +43,10 @@ See [the data definitions](data/README.md) for equations and assumptions.
 ## Viewer and updates
 
 The viewer includes test selection, four plots, material properties,
-full-resolution CSV downloads and SVG plot export.
+full-resolution CSV downloads and SVG plot export. The additional
+[rate-analysis page](https://kks-au.github.io/triaxial-rate-test-data/rate-analysis.html)
+provides 13 plots, pre-/post-peak selection, and beta/gamma fit-table downloads
+including R², standard errors and sample counts.
 See [VIEWER.md](VIEWER.md) for local preview and GitHub Pages deployment.
 After changing data, run `node scripts/build-preview.mjs` to refresh the
 plotting copies. GitHub Actions also performs this automatically on deployment.

@@ -2,5 +2,8 @@
   "name": "triaxial-rate-test-data",
   "private": true,
   "type": "module",
-  "scripts": { "build": "node scripts/build-preview.mjs" }
+  "scripts": {
+    "build": "node scripts/build-preview.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
 }

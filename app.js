@@ -65,6 +65,7 @@ async function update() {
   const current=++revision;renderChoices();renderTables();
   const tests=chosen();$('status').textContent=tests.length?'Loading selected specimens…':'No specimens selected';$('error').hidden=true;
   const url=new URL(location.href);url.searchParams.set('tests',tests.map(t=>t.LabID).join(','));history.replaceState(null,'',url);
+  $('rate-link').href=`rate-analysis.html${url.search}`;
   try {
     const data=await Promise.all(tests.map(async t=>{if(!cache.has(t.LabID))cache.set(t.LabID,json(`data/preview/${t.LabID}.json`).catch(e=>{cache.delete(t.LabID);throw e;}));return cache.get(t.LabID);}));
     if(current!==revision)return;
