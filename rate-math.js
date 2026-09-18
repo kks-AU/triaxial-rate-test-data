@@ -100,3 +100,16 @@ export function fitRows(test,data,branchSelection='both') {
   }
   return result;
 }
+
+// Display grouping only. Measured ratios remain unchanged in plots and fits.
+export function rateGroup(rate, reference=false) {
+  const values=reference?[0.2,1,2]:[0.2,0.5,10];
+  const symbols=['circle','square','triangle-up'];
+  const candidates=values.map((value,i)=>({value,symbol:symbols[i],distance:Math.abs(Math.log(rate/value))}))
+    .filter(g=>finite(rate)&&rate>0&&Math.abs(rate-g.value)/g.value<=0.5)
+    .sort((a,b)=>a.distance-b.distance);
+  const match=candidates[0];
+  return match?{key:String(match.value),label:`r${reference?'ref':'step'} ≈ ${match.value}`,symbol:match.symbol,value:match.value}
+    :{key:'other',label:`Other r${reference?'ref':'step'}`,symbol:'diamond',value:null};
+}
+export const isDeltaPlot = id => !id.startsWith('gamma-');

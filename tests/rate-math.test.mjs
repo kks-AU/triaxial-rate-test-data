@@ -42,3 +42,14 @@ test('all 24 saved pre/post-peak beta coefficients reproduce across 12 tests',()
     }
   }
 });
+test('display ratio groups preserve measured data and distinguish reference ratios',async()=>{
+  const {rateGroup,isDeltaPlot}=await import('../rate-math.js');
+  assert.equal(rateGroup(.51).key,'0.5');assert.equal(rateGroup(.205).key,'0.2');
+  assert.equal(rateGroup(9.85).key,'10');assert.equal(rateGroup(2.1,true).key,'2');
+  assert.equal(rateGroup(1.06,true).key,'1');assert.equal(rateGroup(3).key,'other');
+  assert.equal(rateGroup(null).key,'other');assert.equal(rateGroup(.27).key,'0.2');
+  assert.equal(isDeltaPlot('q-state'),true);assert.equal(isDeltaPlot('gamma-step'),false);
+  const before=totalPoints(a7.total,'q-state');
+  const groups=new Set(before.map(p=>rateGroup(p.rate).key));assert.equal(groups.size,3);
+  assert.deepEqual(totalPoints(a7.total,'q-state'),before);
+});

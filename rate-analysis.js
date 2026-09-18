@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-import {definitions,totalPoints,plasticPoints,fitRows,finite,toCSV} from './rate-math.js';
+import {definitions,totalPoints,plasticPoints,fitRows,finite,toCSV,rateGroup,isDeltaPlot} from './rate-math.js';
 const $=id=>document.getElementById(id);
 const colours=['#087f8c','#c05b27','#7758a6','#3768b0','#bf4372','#658329','#be8621','#3b879d','#6b6581','#a14c39','#2f7970','#8a6634','#596fbe'];
 const selected=new Set(),cache=new Map();
@@ -25,7 +25,7 @@ function renderChoices(){
 function createCards(){
   definitions.forEach((d,i)=>{
     const card=document.createElement('article');card.className='plot-card';
-    card.innerHTML=`<div class="plot-heading"><span>${String(i+1).padStart(2,'0')}</span><h3>${esc(d.title)}</h3><button data-export="${d.id}" aria-label="Download ${esc(d.title)} as SVG">↓ SVG</button></div><div class="plot rate-plot" id="${d.id}"></div><p class="fit-labels" id="${d.id}-fits"></p>`;
+    card.innerHTML=`<div class="plot-heading"><span>${String(i+1).padStart(2,'0')}</span><h3>${esc(d.title)}</h3><button data-export="${d.id}" aria-label="Download ${esc(d.title)} as SVG">↓ SVG</button></div><div class="plot rate-plot" id="${d.id}"></div><div class="ratio-key" id="${d.id}-ratios"></div><p class="fit-labels" id="${d.id}-fits"></p>`;
     $(d.plastic?'plastic-plots':'total-plots').append(card);
     card.querySelector('button').onclick=()=>Plotly.downloadImage(d.id,{format:'svg',filename:`triaxial-${d.id}`,width:1000,height:700});
   });
@@ -50,18 +50,33 @@ async function update(){
     $('availability').textContent=missing.length?`Existing K1 plastic analysis is unavailable for ${missing.join(', ')}; their total-strain results are shown. A9 has no saved rate-reference analysis.`:'A9 has no saved rate-reference analysis. All plotted values come from saved analysis summaries, not reduced preview curves.';
     for(const d of definitions){
       if(current!==revision)return;
-      const traces=[],labels=[];
+      const traces=[],labels=[],shownTests=new Set(),groupsInPlot=new Map();
       tests.forEach((t,i)=>{
         const points=(d.plastic?plasticPoints(data[i],d.id):totalPoints(data[i].total,d.id)).filter(branchMatch);
-        exportPoints.push(...points.map(p=>({LabID:t.LabID,TestID:t.TestID,Plot:d.id,Branch:p.branch,PreviousStage:p.previousStage,Stage:p.stage,X:p.x,Y:p.y,RateRatio:p.rate,TotalShearStrain_pct:p.strain,EstimatedPlasticStrain_pct:p.plasticStrain??null,PersistentReached:p.persistent,ReferenceBasis:'Total shear strain'})));
+        exportPoints.push(...points.map(p=>({LabID:t.LabID,TestID:t.TestID,Plot:d.id,Branch:p.branch,PreviousStage:p.previousStage,Stage:p.stage,X:p.x,Y:p.y,RateRatio:p.rate,RateRatioGroup:isDeltaPlot(d.id)?rateGroup(p.rate,d.id.includes('ref')).label:null,TotalShearStrain_pct:p.strain,EstimatedPlasticStrain_pct:p.plasticStrain??null,PersistentReached:p.persistent,ReferenceBasis:'Total shear strain'})));
         for(const branch of ['PrePeak','PostPeak']){
           const ps=points.filter(p=>p.branch===branch);if(!ps.length)continue;
           const fit=fits.find(f=>f.LabID===t.LabID&&f.Plot===d.id&&f.Branch===branch);
           const usedStages=new Set(fit?.fit.used.map(p=>p.stage)||[]);
-          traces.push({type:'scatter',mode:'markers',name:`${t.TestID} · ${branch==='PrePeak'?'pre':'post'}`,legendgroup:t.LabID,
-            x:ps.map(p=>p.x),y:ps.map(p=>p.y),marker:{color:colour(t),size:8,line:{width:1.4},symbol:ps.map(p=>(d.id.includes('end')&&!p.persistent)||(d.robust&&fit?.NUsed>0&&!usedStages.has(p.stage))?'x':branch==='PrePeak'?'circle':'diamond-open')},
-            customdata:ps.map(p=>[p.previousStage,p.stage,p.strain,p.plasticStrain??null,p.rate,p.persistent===false?'No':'Yes']),
-            hovertemplate:`%{x:.5g}, %{y:.5g}<br>Stage %{customdata[0]} → %{customdata[1]}<br>Total εₛ %{customdata[2]:.4f}%${d.plastic?'<br>Estimated plastic εₛ %{customdata[3]:.4f}%':''}<br>Rate ratio %{customdata[4]:.5g}${d.id.includes('end')?'<br>Persistent: %{customdata[5]}':''}<extra>${esc(t.TestID)} · ${branch}</extra>`});
+          const grouped=new Map();
+          for(const p of ps){
+            const group=isDeltaPlot(d.id)?rateGroup(p.rate,d.id.includes('ref')):null;
+            const key=group?.key??'all';
+            if(!grouped.has(key))grouped.set(key,{group,points:[]});
+            grouped.get(key).points.push(p);
+            if(group)groupsInPlot.set(key,group);
+          }
+          for(const {group,points:series} of [...grouped.values()].sort((a,b)=>(a.group?.value??Infinity)-(b.group?.value??Infinity))){
+            const legendKey=group?`${t.LabID}-${group.key}`:t.LabID;
+            const showlegend=group?!shownTests.has(legendKey):true;
+            shownTests.add(legendKey);
+            const symbol=group?group.symbol+(branch==='PostPeak'?'-open':''):branch==='PrePeak'?'circle':'diamond-open';
+            traces.push({type:'scatter',mode:'markers',name:group?`${t.TestID} · ${group.label}`:`${t.TestID} · ${branch==='PrePeak'?'pre':'post'}`,legendgroup:legendKey,showlegend,
+              meta:{rateGroup:group?.key??null,branch,LabID:t.LabID},
+              x:series.map(p=>p.x),y:series.map(p=>p.y),marker:{color:colour(t),size:9,line:{width:1.4},symbol:series.map(p=>(d.id.includes('end')&&!p.persistent)||(d.robust&&fit?.NUsed>0&&!usedStages.has(p.stage))?'x':symbol)},
+              customdata:series.map(p=>[p.previousStage,p.stage,p.strain,p.plasticStrain??null,p.rate,p.persistent===false?'No':'Yes']),
+              hovertemplate:`%{x:.5g}, %{y:.5g}<br>Stage %{customdata[0]} → %{customdata[1]}<br>Total εₛ %{customdata[2]:.4f}%${d.plastic?'<br>Estimated plastic εₛ %{customdata[3]:.4f}%':''}<br>Measured rate ratio %{customdata[4]:.5g}${group?`<br>Display group: ${esc(group.label)}`:''}${d.id.includes('end')?'<br>Persistent: %{customdata[5]}':''}<extra>${esc(t.TestID)} · ${branch}</extra>`});
+          }
           if(d.parameter&&fit){
             labels.push(`<span style="color:${colour(t)}">${esc(t.TestID)} · ${branch==='PrePeak'?'pre':'post'}: ${esc(fitText(fit))}</span>`);
             if($('show-fits').checked&&finite(fit.Coefficient)){
@@ -73,12 +88,17 @@ async function update(){
         }
       });
       const noPoints=!traces.length;
+      $(d.id).style.height=isDeltaPlot(d.id)&&tests.length>2?`${370+Math.min(240,(tests.length-2)*40)}px`:"";
       await Plotly.react(d.id,traces,{margin:{l:76,r:18,t:15,b:78},font:{family:'DM Sans, Arial, sans-serif',size:11,color:'#526879'},paper_bgcolor:'#fff',plot_bgcolor:'#fff',
         xaxis:{title:{text:d.xLabel,standoff:15},type:d.parameter?'log':'linear',gridcolor:'#edf1f4',automargin:true},yaxis:{title:{text:d.yLabel,standoff:12},gridcolor:'#edf1f4',zerolinecolor:'#c4cfd7',automargin:true},
         legend:{orientation:'h',y:-.3,font:{size:10}},hovermode:'closest',uirevision:`${d.id}-${[...selected].join(',')}-${$('branch').value}`,
         annotations:noPoints?[{text:tests.length?'No available results for this selection':'Select specimens to see their rate response',xref:'paper',yref:'paper',x:.5,y:.5,showarrow:false}]:[]},
         {responsive:true,displaylogo:false,modeBarButtonsToRemove:['select2d','lasso2d'],toImageButtonOptions:{format:'svg',filename:`triaxial-${d.id}`}});
       $(d.id+'-fits').innerHTML=labels.join('<br>');
+      const glyphs={circle:'●',square:'■','triangle-up':'▲',diamond:'◆'};
+      $(d.id+'-ratios').innerHTML=[...groupsInPlot.values()].sort((a,b)=>(a.value??Infinity)-(b.value??Infinity))
+        .map(g=>`<span><b aria-hidden="true">${glyphs[g.symbol]}</b> ${esc(g.label)}</span>`).join('')+
+        (groupsInPlot.size?'<small>Filled: pre-peak · open: post-peak · ×: beta-fit outlier. Colours identify specimens.</small>':'');
     }
     if(current!==revision)return;
     $('fit-table').innerHTML=exportFits.map(f=>`<tr><td>${esc(f.TestID)}<small>${esc(f.LabID)}</small></td><td>${esc(f.Parameter)}</td><td>${f.Branch==='PrePeak'?'Pre-peak':'Post-peak'}</td><td>${fmt(f.Coefficient)}</td><td>${fmt(f.R2)}</td><td>${f.NUsed} / ${f.N}</td><td class="${f.FitAccepted?'':'fit-low'}">${!finite(f.Coefficient)?'Unavailable':f.FitAccepted?'R² ≥ 0.70':'Low / undefined R²'}</td></tr>`).join('')||'<tr><td colspan="7">Select a specimen to view its coefficients.</td></tr>';

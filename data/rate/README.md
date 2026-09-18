@@ -67,3 +67,16 @@ has been reconstructed**. Early A7 plastic strain is especially uncertain under
 the initial-tangent approximation.
 
 Data and research documentation: CC BY 4.0, as in the parent dataset.
+
+## Displaying rate-ratio groups
+
+Delta-response plots split each specimen/branch into approximate rate-ratio
+series. Circles, squares and upward triangles denote step ratios near 0.2,
+0.5 and 10, respectively; reference groups are near 0.2, 1 and 2. Filled/open
+markers distinguish pre-/post-peak points. Diamonds denote other ratios;
+beta outliers remain crosses. Group membership requires relative deviation
+of at most 50%; overlapping candidates use the smallest logarithmic distance.
+These are display groups, not inferred commanded-rate settings. The measured
+ratios still determine every x value and fit. Legends name each specimen/ratio
+series and can toggle it; the stage-value CSV adds `RateRatioGroup` alongside
+`RateRatio`. Legend visibility does not refit coefficients or filter downloads.
