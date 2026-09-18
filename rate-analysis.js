@@ -32,7 +32,7 @@ function createCards(){
 }
 function filterGroup(){const group=$('group').value;
   for(const id of ['total-heading','total-plots'])$(id).hidden=group==='plastic';
-  for(const id of ['plastic-heading','plastic-note','plastic-plots'])$(id).hidden=group==='total';
+  for(const id of ['plastic-heading','plastic-note','plastic-explanation','plastic-plots'])$(id).hidden=group==='total';
   for(const d of definitions)if($(d.id).data&&!$(d.plastic?'plastic-plots':'total-plots').hidden)Plotly.Plots.resize($(d.id));
 }
 function download(rows,filename){if(!rows.length)return;const url=URL.createObjectURL(new Blob(['\uFEFF'+toCSV(rows)],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}

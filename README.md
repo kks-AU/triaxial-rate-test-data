@@ -14,6 +14,7 @@ mixtures, with material properties and an interactive viewer.
 | `data/materials.csv` | Material composition and index properties. |
 | `data/README.md` | Column definitions, equations, assumptions and units. |
 | `data/manifest.json` | Specimen metadata, file paths and source provenance. |
+| `data/reference/` | Saved reference curves and measured stage-rate sequences. |
 | `data/preview/` | Reduced plotting copies generated for the viewer. |
 | `data/rate/` | Saved rate-analysis summaries, K1 plastic coordinates and source provenance. |
 
@@ -42,8 +43,9 @@ See [the data definitions](data/README.md) for equations and assumptions.
 
 ## Viewer and updates
 
-The viewer includes test selection, four plots, material properties,
-full-resolution CSV downloads and SVG plot export. The additional
+The viewer includes test selection, five plots, material properties,
+full-resolution CSV downloads and SVG plot export, plus optional reference
+curves on q and q/p′ versus strain and stage-rate sequences in the test table. The additional
 [rate-analysis page](https://kks-au.github.io/triaxial-rate-test-data/rate-analysis.html)
 provides 13 plots, pre-/post-peak selection, and beta/gamma fit-table downloads
 including R², standard errors and sample counts.

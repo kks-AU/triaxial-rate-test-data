@@ -46,7 +46,28 @@
 <p>The existing K1 analysis uses R = σ′v/σ′h = (3 + 2q/p′)/(3 − q/p′) and an estimated plastic-strain coordinate. Its reference is still evaluated at equal total strain. The K1 q-state plot therefore retains the total-strain q response, with estimated plastic strain available on hover. R maxima are recalculated in R space. Plastic strain is clipped to zero and made nondecreasing using the initial tangent estimate; this is not an equal-plastic-strain reference reconstruction.</p>
 </details>
 <h2 id="total-heading" class="plot-section-heading">Total-strain analysis</h2><div id="total-plots" class="plots"></div>
-<h2 id="plastic-heading" class="plot-section-heading">Existing K1 plastic-strain analysis</h2><p id="plastic-note" class="plot-note">A7, A8, F2, D1 and D3 · total-strain reference retained; estimated plastic strain in hover details.</p><div id="plastic-plots" class="plots"></div>
+<h2 id="plastic-heading" class="plot-section-heading">Existing K1 plastic-strain analysis</h2><p id="plastic-note" class="plot-note">A7, A8, F2, D1 and D3 · total-strain reference retained; estimated plastic strain in hover details.</p><section id="plastic-explanation" class="coefficient-guide" aria-labelledby="plastic-method-title">
+<h3 id="plastic-method-title">How is plastic shear strain estimated?</h3>
+<p>The existing K1 analysis covers <strong>A7, A8, F2, D1 and D3</strong>. It separates an estimated elastic component from the measured total shear strain, using each specimen’s initial loading stiffness.</p>
+<div class="coefficient-grid">
+<article><h3>1 · Estimate the elastic component</h3>
+<p>The initial tangent K₀ = dq/dε<sub>s</sub> is fitted over the first 0.05% of total shear strain. K₀ is in kPa per percentage point of strain.</p>
+<p class="equation">ε<sub>s,raw</sub><sup>p</sup> = (ε<sub>s</sub> − ε<sub>s,initial</sub>) − (q<sub>smooth</sub> − q<sub>initial</sub>) / K₀</p>
+<p>This subtracts the estimated elastic strain from total strain. It uses an initial loading tangent, not an independently measured unloading modulus.</p></article>
+<article><h3>2 · Form the plotting coordinate</h3>
+<p>The accumulated plastic-strain estimate is clipped at zero and made nondecreasing along the shear history. The original analysis also saves raw estimates to show where this approximation gives negative or decreasing plastic strain.</p>
+<p>The estimated plastic strain at each response maximum appears in hover details and the stage-value CSV. Early A7 estimates are especially uncertain because the raw estimate becomes negative.</p></article>
+<article><h3>3 · Keep the existing reference basis</h3>
+<p><strong>The reference curve is evaluated at equal total shear strain, not equal plastic strain.</strong> Plastic strain is an additional coordinate; it does not rebuild the reference or change the q-response maxima.</p>
+<p>Consequently, the K1 Δq<sub>step,max</sub>/q<sub>max,ref</sub> versus q₀/q<sub>max,ref</sub> panel repeats the established total-reference q response for the five K1 specimens.</p></article>
+<article><h3>4 · Calculate the R response</h3>
+<p class="equation">R = σ′<sub>v</sub>/σ′<sub>h</sub> = (3 + 2q/p′) / (3 − q/p′)</p>
+<p>The measured and reference q/p′ curves are transformed to R. ΔR is the smoothed measured-minus-reference departure, minus the preceding stage’s final averaged departure. Its directional maximum is found again in R space within the saved search window; it is not obtained by transforming Δ(q/p′)<sub>max</sub>.</p>
+<p>R₀ is the preceding stage’s final averaged measured R. The panels show ΔR<sub>max</sub> versus R₀ and ΔR<sub>max</sub>/R₀ versus r<sub>step</sub>.</p></article>
+</div>
+<p class="rate-definition">This is an approximate strain decomposition. Clipping gives a usable plotting coordinate but does not validate the elastic-stiffness assumption. An equal-plastic-strain comparison would require a separately justified elastic law and a rebuilt reference.</p>
+</section>
+<div id="plastic-plots" class="plots"></div>
 <section class="download-section rate-download"><div class="section-heading"><div><p class="eyebrow">REUSE THE ANALYSIS</p><h2>Beta & gamma fits</h2></div><button id="download-fits" class="primary" disabled>Fit table ↓ CSV</button></div>
 <p class="plot-note">For selected specimens and peak branches, across all plot groups. Includes βstep, βref, fitted γmax and γend, normalized γqp and K1 γR. See the definitions above for the difference between individual γ values and fitted γ coefficients. A dash means the coefficient or R² cannot be fitted. N used excludes rejected points.</p>
 <div class="table-wrap"><table><caption>Fits are dimensionless, per decade of strain rate</caption><thead><tr><th>Test / lab ID</th><th>Parameter</th><th>Branch</th><th>Fitted coefficient</th><th>R²</th><th>N used / valid</th><th>Fit</th></tr></thead><tbody id="fit-table"></tbody></table></div><div class="all-downloads"><button id="download-points" class="secondary" disabled>Plotted stage values ↓ CSV</button><a href="data/rate/manifest.json" download>Analysis provenance ↓ JSON</a></div></section>

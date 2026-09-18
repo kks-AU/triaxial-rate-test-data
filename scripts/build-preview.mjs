@@ -21,10 +21,20 @@ export function parseCSV(text) {
 }
 const read = async file => parseCSV(await fs.readFile(path.join(source, 'data', file), 'utf8'));
 const manifest = JSON.parse(await fs.readFile(path.join(source, 'data/manifest.json'), 'utf8'));
-const fields = ['ShearStrain_pct','q_kPa','p_eff_kPa','PorePressure_kPa','ExcessPorePressure_kPa','VoidRatioFinalWaterContentShifted','StageNumber','AxialStrainRate_pct_min','SourceRow'];
+const fields = ['ShearStrain_pct','q_kPa','p_eff_kPa','PorePressure_kPa','ExcessPorePressure_kPa','VoidRatioFinalWaterContentShifted','StageNumber','AxialStrainRate_pct_min','SourceRow','q_over_p'];
 const number = value => value !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
 for (const test of manifest.tests) {
   const rows = await read(test.ShearFile);
+  const reference = JSON.parse(await fs.readFile(path.join(source, 'data/reference', `${test.LabID}.json`), 'utf8'));
+  if(reference.LabID !== test.LabID) throw Error(`Reference ID mismatch: ${test.LabID}`);
+  test.ReferenceRate_pct_min = reference.referenceRate;
+  test.ReferenceRateSource = reference.referenceRateSource;
+  test.RateSequence = reference.rateSequence;
+  test.HasReferenceCurve = Boolean(reference.q?.strain?.length && reference.qp?.strain?.length);
+  for(const row of rows) {
+    const q=number(row.q_kPa), p=number(row.p_eff_kPa);
+    row.q_over_p = q!==null && p!==null && p>0 ? q/p : '';
+  }
   if (rows.length !== test.ShearRows) throw Error(`Row mismatch: ${test.LabID}`);
   // Segment before thinning, so invalid intervals cannot be bridged.
   const segments = []; let segment = [];
@@ -42,7 +52,7 @@ for (const test of manifest.tests) {
     for (let start = 0; start < seg.length; start += bucketSize) {
       const end = Math.min(seg.length, start + bucketSize);
       indices.add(start); indices.add(end - 1);
-      for (const field of fields.slice(0, 6)) {
+      for (const field of [...fields.slice(0, 6), 'q_over_p']) {
         let low = start, high = start;
         for (let i = start + 1; i < end; i++) {
           if (Number(seg[i][field]) < Number(seg[low][field])) low = i;
@@ -56,7 +66,7 @@ for (const test of manifest.tests) {
   }
   const compression = (await read(test.CompressionFile)).map(r => ({ p: number(r.p_eff_kPa), e: number(r.VoidRatioFinalWaterContentShifted), stage: number(r.StageNumber), type: r.PointType }));
   if (compression.length !== test.CompressionPoints) throw Error(`Compression count mismatch: ${test.LabID}`);
-  const data = { fields, sourceRows: rows.length, displayedRows: sampled.filter(Boolean).length, stages: [...stageInfo.values()], shear: sampled, compression };
+  const data = { fields, sourceRows: rows.length, displayedRows: sampled.filter(Boolean).length, stages: [...stageInfo.values()], shear: sampled, compression, reference };
   await fs.writeFile(path.join(output, `${test.LabID}.json`), JSON.stringify(data));
   console.log(`${test.LabID}: ${rows.length} → ${data.displayedRows} plotting points`);
 }

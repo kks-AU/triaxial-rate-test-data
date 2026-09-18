@@ -2,6 +2,8 @@
 const $ = id => document.getElementById(id);
 const colours = ['#087f8c','#c05b27','#7758a6','#3768b0','#bf4372','#658329','#be8621','#3b879d','#6b6581','#a14c39','#2f7970','#8a6634','#596fbe'];
 const selected = new Set(), cache = new Map();
+const plotIDs=['stress','ratio','path','water','compression'];
+const rateFmt=v=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumSignificantDigits:4}):'—';
 let catalogue, revision = 0;
 const fmt = (v, digits=2) => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? '—' : Number(v).toLocaleString(undefined,{maximumFractionDigits:digits});
 const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -22,8 +24,14 @@ function renderChoices() {
 }
 const materials = () => catalogue.materials.filter(m=>chosen().some(t=>t.MaterialID===m.SoilComposition));
 function tableRows(rows, fields) { return rows.map(r=>`<tr>${fields.map(f=>`<td>${esc(r[f] === '' || r[f] === 'NaN' ? '—' : r[f])}</td>`).join('')}</tr>`).join(''); }
+function rateSequence(test) {
+  const stages=test.RateSequence??[];
+  if(!stages.length)return '—';
+  const preview=stages.slice(0,3).map(s=>rateFmt(s.rate)).join(' → ')+(stages.length>3?' → …':'');
+  return `<details class="rate-sequence"><summary>${esc(preview)}<small>${stages.length} stages · measured</small></summary><ol>${stages.map(s=>`<li>Stage ${esc(s.stage)}: <strong>${rateFmt(s.rate)}</strong></li>`).join('')}</ol></details>`;
+}
 function renderTables() {
-  $('test-table').innerHTML=chosen().map(t=>`<tr><td><strong style="color:${colour(t)}">${esc(t.TestID)}</strong><small>${esc(t.LabID)}</small></td><td>${esc(t.MaterialID || '—')}</td><td>${fmt(t.EndConsolidationPressure_kPa,1)}</td><td>${fmt(t.OCR)}</td><td>${fmt(t.InitialVoidRatioCorrected,3)}</td><td><a href="data/${encodeURI(t.ShearFile)}" download>Shear CSV ↓</a><a href="data/${encodeURI(t.CompressionFile)}" download>Compression CSV ↓</a></td></tr>`).join('') || '<tr><td colspan="6">Select a specimen to explore and download its data.</td></tr>';
+  $('test-table').innerHTML=chosen().map(t=>`<tr><td><strong style="color:${colour(t)}">${esc(t.TestID)}</strong><small>${esc(t.LabID)}</small></td><td>${esc(t.MaterialID || '—')}</td><td>${fmt(t.EndConsolidationPressure_kPa,1)}</td><td>${fmt(t.OCR)}</td><td>${fmt(t.InitialVoidRatioCorrected,3)}</td><td>${rateFmt(t.ReferenceRate_pct_min)}${t.ReferenceRateSource==='configured'?'<small>Configured; no saved curve</small>':''}</td><td>${rateSequence(t)}</td><td><a href="data/${encodeURI(t.ShearFile)}" download>Shear CSV ↓</a><a href="data/${encodeURI(t.CompressionFile)}" download>Compression CSV ↓</a></td></tr>`).join('') || '<tr><td colspan="8">Select a specimen to explore and download its data.</td></tr>';
   $('material-table').innerHTML=tableRows(materials(),['SoilComposition','K_pct','B_pct','SW_pct','wL_pct','Gs','CF_pct']) || '<tr><td colspan="7">No material metadata for the current selection.</td></tr>';
   $('download-materials').disabled=!materials().length;
 }
@@ -51,24 +59,36 @@ function trace(t,data,xIndex,yIndex) {
 }
 async function plots(tests, data, current) {
   const excess=$('pore').value==='excess';
-  const definitions=[['stress','Shear strain, εₛ (%)','Deviator stress, q (kPa)',0,1],['path','Mean effective stress, p′ (kPa)','Deviator stress, q (kPa)',2,1],['water','Shear strain, εₛ (%)',excess?'Excess pore pressure, Δu (kPa)':'Pore pressure, u (kPa)',0,excess?4:3],['compression','Mean effective stress, p′ (kPa)','Void ratio, e',null,null]];
+  const definitions=[['stress','Shear strain, εₛ (%)','Deviator stress, q (kPa)',0,1],['ratio','Shear strain, εₛ (%)','Stress ratio, q/p′',0,9],['path','Mean effective stress, p′ (kPa)','Deviator stress, q (kPa)',2,1],['water','Shear strain, εₛ (%)',excess?'Excess pore pressure, Δu (kPa)':'Pore pressure, u (kPa)',0,excess?4:3],['compression','Mean effective stress, p′ (kPa)','Void ratio, e',null,null]];
   for(const [id,x,y,xi,yi] of definitions) {
     if(current!==revision)return;
     const layout=baseLayout(x,y,id);
     const traces=tests.map((t,i)=>id==='compression'?{type:'scatter',mode:'lines+markers',name:t.TestID,line:{color:colour(t),width:1.8},marker:{size:5},x:data[i].compression.map(r=>r.p),y:data[i].compression.map(r=>r.e),customdata:data[i].compression.map(r=>[r.stage,r.type]),hovertemplate:'p′ %{x:.4g} kPa<br>e %{y:.4f}<br>Stage %{customdata[0]} · %{customdata[1]}<extra>'+esc(t.TestID)+'</extra>'}:trace(t,data[i],xi,yi));
+    if($('references').checked && (id==='stress'||id==='ratio')) {
+      tests.forEach((t,i)=>{
+        const ref=data[i].reference, curve=ref?.[id==='stress'?'q':'qp'];
+        if(!curve?.strain?.length)return;
+        traces.push({type:'scatter',mode:'lines',name:`${t.TestID} · reference (${rateFmt(ref.referenceRate)} %/min)`,
+          x:curve.strain,y:curve.values,connectgaps:false,line:{color:colour(t),width:2.4,dash:'dash'},
+          hovertemplate:`Shear strain %{x:.4g}%<br>${id==='stress'?'Reference q %{y:.5g} kPa':'Reference q/p′ %{y:.5g}'}<br>Reference rate ${rateFmt(ref.referenceRate)} %/min<extra>${esc(t.TestID)}</extra>`});
+      });
+    }
     if(id==='compression')layout.xaxis.type=$('scale').value;
-    if($('stages').checked && (id==='stress'||id==='water'))layout.shapes=tests.flatMap((t,i)=>data[i].stages.filter(s=>s.strain!==null).map(s=>({type:'line',xref:'x',yref:'paper',x0:s.strain,x1:s.strain,y0:0,y1:1,line:{color:colour(t),width:.65,dash:'dot'},opacity:.35,layer:'below'})));
+    if($('stages').checked && (id==='stress'||id==='ratio'||id==='water'))layout.shapes=tests.flatMap((t,i)=>data[i].stages.filter(s=>s.strain!==null).map(s=>({type:'line',xref:'x',yref:'paper',x0:s.strain,x1:s.strain,y0:0,y1:1,line:{color:colour(t),width:.65,dash:'dot'},opacity:.35,layer:'below'})));
     await Plotly.react(id,traces,layout,{responsive:true,displaylogo:false,scrollZoom:false,modeBarButtonsToRemove:['select2d','lasso2d'],toImageButtonOptions:{format:'svg',filename:`triaxial-${id}`}});
   }
 }
 async function update() {
   const current=++revision;renderChoices();renderTables();
   const tests=chosen();$('status').textContent=tests.length?'Loading selected specimens…':'No specimens selected';$('error').hidden=true;
-  const url=new URL(location.href);url.searchParams.set('tests',tests.map(t=>t.LabID).join(','));history.replaceState(null,'',url);
+  const url=new URL(location.href);url.searchParams.set('tests',tests.map(t=>t.LabID).join(','));url.searchParams.set('references',$('references').checked?'1':'0');history.replaceState(null,'',url);
   $('rate-link').href=`rate-analysis.html${url.search}`;
   try {
     const data=await Promise.all(tests.map(async t=>{if(!cache.has(t.LabID))cache.set(t.LabID,json(`data/preview/${t.LabID}.json`).catch(e=>{cache.delete(t.LabID);throw e;}));return cache.get(t.LabID);}));
     if(current!==revision)return;
+    const missing=tests.filter((t,i)=>!data[i].reference?.q?.strain?.length).map(t=>t.LabID);
+    $('reference-note').hidden=!$('references').checked;
+    $('reference-note').textContent='Dashed lines show the saved reference-rate trajectories at equal total shear strain, within their supported strain ranges.'+(missing.length?` No saved reference curve for ${missing.join(', ')}.`:'');
     await plots(tests,data,current);
     if(current!==revision)return;
     $('status').textContent=tests.length?`${tests.length} specimens · ${fmt(tests.reduce((n,t)=>n+t.ShearRows,0),0)} source measurements`:'Select specimens in the left panel';
@@ -80,16 +100,18 @@ async function init() {
   const resizeObserver = new ResizeObserver(entries => {
     for(const {target} of entries) if(target.data) Plotly.Plots.resize(target);
   });
-  for(const id of ['stress','path','water','compression'])resizeObserver.observe($(id));
+  for(const id of plotIDs)resizeObserver.observe($(id));
   $('stats').innerHTML=`<span><strong>${catalogue.tests.length}</strong> tests</span><span><strong>${catalogue.materials.length}</strong> materials</span><span><strong>${fmt(catalogue.tests.reduce((n,t)=>n+t.ShearRows,0),0)}</strong> measurements</span>`;
   for(const m of catalogue.materials){const option=document.createElement('option');option.value=m.SoilComposition;option.textContent=m.SoilComposition;$('material').append(option);}
-  const requested=new URLSearchParams(location.search).get('tests');
+  const params=new URLSearchParams(location.search);
+  const requested=params.get('tests');
+  $('references').checked=params.get('references')==='1';
   for(const id of (requested===null?'A7,E3':requested).split(','))if(catalogue.tests.some(t=>t.LabID===id))selected.add(id);
   $('search').addEventListener('input',renderChoices);$('material').addEventListener('change',renderChoices);
   $('select-visible').onclick=()=>{visible().forEach(t=>selected.add(t.LabID));update();};
   $('clear').onclick=()=>{selected.clear();update();};
-  for(const id of ['pore','scale','stages'])$(id).onchange=update;
-  $('reset').onclick=()=>{for(const id of ['stress','path','water','compression'])Plotly.relayout(id,{'xaxis.autorange':true,'yaxis.autorange':true});};
+  for(const id of ['pore','scale','stages','references'])$(id).onchange=update;
+  $('reset').onclick=()=>{for(const id of plotIDs)Plotly.relayout(id,{'xaxis.autorange':true,'yaxis.autorange':true});};
   $('download-materials').onclick=()=>downloadCSV(materials(),'selected-material-properties.csv');
   document.querySelectorAll('[data-export]').forEach(button=>button.onclick=()=>Plotly.downloadImage(button.dataset.export,{format:'svg',filename:`triaxial-${button.dataset.export}`,width:1000,height:700}));
   await update();

@@ -1,7 +1,7 @@
 # Interactive data explorer
 
 The site runs entirely in the browser. It provides test and material selection,
-four Plotly charts, absolute/excess pore-pressure switching, logarithmic/linear
+five Plotly charts, absolute/excess pore-pressure switching, logarithmic/linear
 compression axes, optional stage markers, CSV downloads and SVG figure export.
 The selected test IDs are saved in the URL, so comparisons can be bookmarked.
 
@@ -45,7 +45,7 @@ link directly to the original CSV files; the viewer does not rewrite them.
 
 The build script separates stages and intervals marked invalid by `PlotValid`.
 Within each segment, it retains endpoints and bucket minima/maxima of strain,
-q, p', absolute and excess pore pressure, and corrected void ratio. Points stay
+q, q/p′, p', absolute and excess pore pressure, and corrected void ratio. Points stay
 in source order and no new experimental values are interpolated. Null rows
 separate segments so the charts do not connect across invalid intervals.
 Hover labels include the source CSV row, stage and measured axial strain rate.
@@ -88,3 +88,33 @@ Fit equations and normalization are documented in the page and
 [data/rate/README.md](data/rate/README.md). The companion MATLAB function
 `Plot_rate_analysis.m` in the RateEffects project offers matching `Tests`,
 `Plots`, `Branch`, `ShowFits`, `Export`, `Formats` and `OutputDir` options.
+
+## Stress-ratio plot, reference curves and rates
+
+The test-response page includes q/p′ versus total shear strain. The reduced
+preview retains bucket extrema of q/p′ as well as q and p′. Its `q_over_p`
+column is dimensionless and uses the same processed stresses as the stress path.
+
+The **Show reference curves** checkbox overlays the saved q and q/p′ reference
+trajectories as dashed lines on their respective strain plots. It is preserved
+in the page URL (`references=1`). These are sampled directly from the MATLAB
+PCHIP coefficients, including all control points and the saved peak, only within
+the supported control-point range. They are not reconstructed from preview data.
+A9 has no saved reference curve and is explicitly marked as unavailable.
+
+The specimen table lists reference rate and the measured stage-rate sequence
+in %/min. Expand a sequence to see all stage numbers and rates. Stage rates
+are IQR-filtered means computed by the same procedure as the source analysis.
+Reference rates come from the saved analysis, except A9’s configured value,
+which is labelled accordingly.
+
+To refresh these inputs, add the viewer repository to the MATLAB path and run:
+
+```matlab
+export_reference_curves('/path/to/RateEffects')
+```
+
+Then run `node scripts/build-preview.mjs`. The exporter verifies source shear
+SHA-256 hashes against the public dataset, validates reference fingerprints,
+and checks stage rates against the saved analysis. `data/reference/` is a
+committed input to the Pages build, so MATLAB is not required on GitHub Actions.
