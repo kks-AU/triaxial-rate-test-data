@@ -4,6 +4,7 @@ const colours = ['#087f8c','#c05b27','#7758a6','#3768b0','#bf4372','#658329','#b
 const selected = new Set(), cache = new Map();
 const plotIDs=['stress','ratio','path','water','compression'];
 const rateFmt=v=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumSignificantDigits:4}):'—';
+const tableRateFmt=v=>Number.isFinite(v)?v.toLocaleString(undefined,{minimumSignificantDigits:2,maximumSignificantDigits:2}):'—';
 let catalogue, revision = 0;
 const fmt = (v, digits=2) => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? '—' : Number(v).toLocaleString(undefined,{maximumFractionDigits:digits});
 const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -27,11 +28,11 @@ function tableRows(rows, fields) { return rows.map(r=>`<tr>${fields.map(f=>`<td>
 function rateSequence(test) {
   const stages=test.RateSequence??[];
   if(!stages.length)return '—';
-  const preview=stages.slice(0,3).map(s=>rateFmt(s.rate)).join(' → ')+(stages.length>3?' → …':'');
-  return `<details class="rate-sequence"><summary>${esc(preview)}<small>${stages.length} stages · measured</small></summary><ol>${stages.map(s=>`<li>Stage ${esc(s.stage)}: <strong>${rateFmt(s.rate)}</strong></li>`).join('')}</ol></details>`;
+  const preview=stages.slice(0,3).map(s=>tableRateFmt(s.rate)).join(' → ')+(stages.length>3?' → …':'');
+  return `<details class="rate-sequence"><summary>${esc(preview)}<small>${stages.length} stages · measured</small></summary><ol>${stages.map(s=>`<li>Stage ${esc(s.stage)}: <strong>${tableRateFmt(s.rate)}</strong></li>`).join('')}</ol></details>`;
 }
 function renderTables() {
-  $('test-table').innerHTML=chosen().map(t=>`<tr><td><strong style="color:${colour(t)}">${esc(t.TestID)}</strong><small>${esc(t.LabID)}</small></td><td>${esc(t.MaterialID || '—')}</td><td>${fmt(t.EndConsolidationPressure_kPa,1)}</td><td>${fmt(t.OCR)}</td><td>${fmt(t.InitialVoidRatioCorrected,3)}</td><td>${rateFmt(t.ReferenceRate_pct_min)}${t.ReferenceRateSource==='configured'?'<small>Configured; no saved curve</small>':''}</td><td>${rateSequence(t)}</td><td><a href="data/${encodeURI(t.ShearFile)}" download>Shear CSV ↓</a><a href="data/${encodeURI(t.CompressionFile)}" download>Compression CSV ↓</a></td></tr>`).join('') || '<tr><td colspan="8">Select a specimen to explore and download its data.</td></tr>';
+  $('test-table').innerHTML=chosen().map(t=>`<tr><td><strong style="color:${colour(t)}">${esc(t.TestID)}</strong><small>${esc(t.LabID)}</small></td><td>${esc(t.MaterialID || '—')}</td><td>${fmt(t.EndConsolidationPressure_kPa,1)}</td><td>${fmt(t.OCR)}</td><td>${fmt(t.InitialVoidRatioCorrected,3)}</td><td>${tableRateFmt(t.ReferenceRate_pct_min)}${t.ReferenceRateSource==='configured'?'<small>Configured; no saved curve</small>':''}</td><td>${rateSequence(t)}</td><td><a href="data/${encodeURI(t.ShearFile)}" download>Shear CSV ↓</a><a href="data/${encodeURI(t.CompressionFile)}" download>Compression CSV ↓</a></td></tr>`).join('') || '<tr><td colspan="8">Select a specimen to explore and download its data.</td></tr>';
   $('material-table').innerHTML=tableRows(materials(),['SoilComposition','K_pct','B_pct','SW_pct','wL_pct','Gs','CF_pct']) || '<tr><td colspan="7">No material metadata for the current selection.</td></tr>';
   $('download-materials').disabled=!materials().length;
 }
