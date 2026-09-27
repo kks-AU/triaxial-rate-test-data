@@ -53,6 +53,11 @@ See [VIEWER.md](VIEWER.md) for local preview and GitHub Pages deployment.
 After changing data, run `node scripts/build-preview.mjs` to refresh the
 plotting copies. GitHub Actions also performs this automatically on deployment.
 
+Both viewer pages use GoatCounter for visitor and page-view statistics. The
+site owner can sign in to the [analytics dashboard](https://triaxial-rate-tests.goatcounter.com/).
+These statistics cover the hosted viewer; repository traffic is available
+separately under GitHub's **Insights → Traffic**.
+
 To regenerate the data from the separate MATLAB analysis project, add this
 repository to the MATLAB path and call:
 
